@@ -13,22 +13,6 @@
 	pop dx
 %endmacro
 
-%macro sleepmul 3
-	; Use BIOS interrupt to sleep
-  ; + use nice loop to extend time
-	pusha
-  mov bl, 0
-  %1:
-    mov ah, 86h
-    mov cx, 0
-    mov dx, %2
-    int 15h
-    inc bl
-    cmp bl, %3
-    jne %1
-  popa
-%endmacro
-
 
 bits 16
 org 0x7c00
@@ -281,7 +265,6 @@ sl1:
 ; =====================================================
 gamestart:
   call clear_screen_l
-  ; sleepmul waitstart, 50000, 16
 
 ; make walls ==========================================
 ; each line has its own loop
@@ -369,7 +352,7 @@ mainloop:
 
 snakepront:
   call printsnek
-  sleepmul mainsleep, 50000, 2 ; 50ms * 2 = 100ms sleep
+  sleep 0x1, 0x86a0 ; 100 ms
   jmp mainloop  ; infinite loop
 
 ; in case I need to freeze stuff, usually debug
@@ -550,7 +533,7 @@ death:
   
   ; jmp $
 
-  sleepmul deathsleep, 50000, 4
+  sleep 0x3, 0x0d40 ; 200 ms
 
   ; clear keyboard buffer
   mov di, 001Eh
